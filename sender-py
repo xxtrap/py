@@ -1,0 +1,82 @@
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+def send_email(sender_email, sender_password, recipient_email, subject, body, headers_editable):
+    # Set up SMTP server details
+    smtp_server = 'smtp.yourprovider.com'
+    smtp_port = 587  # Update port based on your provider
+
+    # Create a MIME multipart message
+    message = MIMEMultipart()
+    message['From'] = sender_email
+    message['To'] = recipient_email
+    message['Subject'] = subject
+
+    # Add email body as plain text
+    message.attach(MIMEText(body, 'plain'))
+
+    # Define headers and their editability
+    default_headers = {
+        'MIME-Version': True,
+        'From': True,
+        'To': True,
+        'Date': True,
+        'Content-Type': True,
+        'Auto-Submitted': False,
+        'X-MS-PublicTrafficType': True,
+        'X-MS-Exchange-Organization-AuthSource': True,
+        'X-MS-Exchange-Organization-AuthAs': True,
+        'X-MS-Exchange-Organization-AuthMechanism': True,
+        'X-MS-Exchange-Organization-Network-Message-Id': True,
+        'X-MS-TrafficTypeDiagnostic': True,
+        'X-MS-Exchange-Organization-ExpirationStartTime': True,
+        'X-MS-Exchange-Organization-ExpirationStartTimeReason': True,
+        'X-MS-Exchange-Organization-ExpirationInterval': True,
+        'X-MS-Exchange-Organization-ExpirationIntervalReason': True,
+        'X-Microsoft-Antispam': True,
+        'X-Forefront-Antispam-Report': True,
+        'X-MS-Exchange-CrossTenant-OriginalArrivalTime': True,
+        'X-MS-Exchange-CrossTenant-FromEntityHeader': True,
+        'X-MS-Exchange-CrossTenant-AuthSource': True,
+        'X-MS-Exchange-CrossTenant-AuthAs': True,
+        'X-MS-Exchange-CrossTenant-Network-Message-Id': True,
+        'X-MS-Exchange-Transport-CrossTenantHeadersStamped': True,
+        'X-MS-Exchange-Organization-MessageDirectionality': True,
+        'X-MS-Exchange-Transport-EndToEndLatency': True,
+        'X-MS-Exchange-Processed-By-BccFoldering': True,
+        'X-Microsoft-Antispam-Mailbox-Delivery': True,
+        'X-Microsoft-Antispam-Message-Info': True
+    }
+
+    # Customize headers based on editability settings
+    for header, editable in headers_editable.items():
+        if header in default_headers and not editable:
+            # Mark the header as not editable (remove it from the message)
+            del message[header]
+
+    # Connect to SMTP server and send the email
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()  # Use TLS encryption
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, recipient_email, message.as_string())
+
+# Example usage
+sender_email = 'your_email@example.com'
+sender_password = 'your_email_password'
+recipient_email = 'recipient@example.com'
+subject = 'Test Email'
+body = 'This is a test email.'
+
+# Define which headers are editable (True) or not editable (False)
+headers_editable = {
+    'MIME-Version': True,
+    'From': True,
+    'To': True,
+    'Auto-Submitted': False,
+    'X-MS-PublicTrafficType': True
+    # Add more headers as needed with their editability status
+}
+
+# Send the email with customized headers editability settings
+send_email(sender_email, sender_password, recipient_email, subject, body, headers_editable)
