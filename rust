@@ -1,0 +1,89 @@
+extern crate lettre;
+extern crate lettre_email;
+
+use lettre::transport::smtp::authentication::{Credentials, Mechanism};
+use lettre::transport::smtp::client::TlsParameters;
+use lettre::{Message, SmtpTransport, Transport};
+use lettre_email::EmailBuilder;
+
+fn send_email(
+    sender_email: &str,
+    sender_password: &str,
+    recipient_email: &str,
+    subject: &str,
+    body: &str,
+    headers_editable: Vec<(&str, &str)>,
+) -> Result<(), String> {
+    // Set up SMTP server details
+    let smtp_server = "smtp.yourprovider.com";
+    let smtp_port = 587;
+
+    // Create SMTP transport
+    let smtp_credentials = Credentials::new(sender_email.to_string(), sender_password.to_string());
+    let smtp_transport = SmtpTransport::starttls_simple(smtp_server, smtp_port)
+        .map_err(|e| format!("Failed to connect to SMTP server: {}", e))?
+        .credentials(smtp_credentials)
+        .authentication_mechanism(Mechanism::Login)
+        .tls(TlsParameters::default())
+        .build();
+
+    // Build the email message
+    let email = EmailBuilder::new()
+        .to(recipient_email)
+        .from(sender_email)
+        .subject(subject)
+        .text(body)
+        .build()
+        .map_err(|e| format!("Failed to build email: {}", e))?;
+
+    // Customize headers based on editability settings
+    let mut message = Message::from(email);
+    for (header, value) in headers_editable {
+        message
+            .get_headers_mut()
+            .insert(header.to_string(), value.to_string());
+    }
+
+    // Send the email
+    match smtp_transport.send(&message) {
+        Ok(_) => {
+            println!("Email sent successfully");
+            Ok(())
+        }
+        Err(e) => Err(format!("Failed to send email: {}", e)),
+    }
+}
+
+fn main() {
+    // Example usage
+    let sender_email = "your_email@example.com";
+    let sender_password = "your_email_password";
+    let recipient_email = "recipient@example.com";
+    let subject = "Test Email";
+    let body = "This is a test email.";
+
+    // Define which headers are editable
+    let headers_editable = vec![
+        ("Received", "Editable || will not trigger filters"),
+        ("Authentication-Results", "Editable || will not trigger filters"),
+        ("Received-SPF", "Editable || will not trigger filters"),
+        ("DKIM-Signature", "Editable || will not trigger filters"),
+        ("To", "Editable || will not trigger filters"),
+        ("Message-ID", "Editable || will trigger filters"),
+        ("Date", "Editable || will not trigger filters"),
+        ("Content-Type", "Editable || will not trigger filters"),
+        // Add more headers as needed
+    ];
+
+    // Send the email with customized headers
+    if let Err(err) = send_email(
+        sender_email,
+        sender_password,
+        recipient_email,
+        subject,
+        body,
+        headers_editable,
+    ) {
+        eprintln!("Error: {}", err);
+    }
+}
