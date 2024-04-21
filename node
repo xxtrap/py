@@ -1,0 +1,83 @@
+const nodemailer = require('nodemailer');
+
+async function sendEmail(senderEmail, senderPassword, recipientEmail, subject, body, headersEditable) {
+    try {
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.yourprovider.com',
+            port: 587,
+            auth: {
+                user: senderEmail,
+                pass: senderPassword
+            }
+        });
+
+        const mailOptions = {
+            from: senderEmail,
+            to: recipientEmail,
+            subject: subject,
+            text: body,
+            headers: headersEditable
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully');
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+}
+
+// Example usage
+const senderEmail = 'your_email@example.com';
+const senderPassword = 'your_email_password';
+const recipientEmail = 'recipient@example.com';
+const subject = 'Test Email';
+const body = 'This is a test email.';
+
+const headersEditable = {
+    'Received': 'Editable || will not trigger filters',
+    'Authentication-Results': 'Editable || will not trigger filters',
+    'Received-SPF': 'Editable || will not trigger filters',
+    'DKIM-Signature': 'Editable || will not trigger filters',
+    'To': 'Editable || will not trigger filters',
+    'Message-ID': 'Editable || will trigger filters',
+    'Date': 'Editable || will not trigger filters',
+    'Content-Type': 'Editable || will not trigger filters',
+    'MIME-Version': 'Editable || will not trigger filters',
+    'Reply-To': 'Editable || will not trigger filters',
+    'X-Campaign-ID': 'Editable || will not trigger filters',
+    'From': 'Editable || will not trigger filters',
+    'Subject': 'Editable || will not trigger filters',
+    'X-Message-ID': 'Editable || will not trigger filters',
+    'X-Feedback-ID': 'Editable || will not trigger filters',
+    'Feedback-ID': 'Editable || will not trigger filters',
+    'Return-Path': 'Editable || will not trigger filters',
+    'X-MS-Exchange-Organization-ExpirationStartTime': 'Editable || will not trigger filters',
+    'X-MS-Exchange-Organization-ExpirationStartTimeReason': 'Editable || will not trigger filters',
+    'X-MS-Exchange-Organization-ExpirationInterval': 'Editable || will not trigger filters',
+    'X-MS-Exchange-Organization-ExpirationIntervalReason': 'Editable || will not trigger filters',
+    'X-MS-Exchange-Organization-Network-Message-Id': 'Editable || will not trigger filters',
+    'X-EOPAttributedMessage': 'Editable || will not trigger filters',
+    'X-EOPTenantAttributedMessage': 'Editable || will not trigger filters',
+    'X-MS-Exchange-Organization-MessageDirectionality': 'Editable || will not trigger filters',
+    'X-MS-PublicTrafficType': 'Editable || will not trigger filters',
+    'X-MS-TrafficTypeDiagnostic': 'Editable || will not trigger filters',
+    'X-MS-Exchange-Organization-AuthSource': 'Editable || will not trigger filters',
+    'X-MS-Exchange-Organization-AuthAs': 'Editable || will not trigger filters',
+    'X-MS-Office365-Filtering-Correlation-Id': 'Editable || will not trigger filters',
+    'X-MS-Exchange-Organization-SCL': 'Editable || will trigger filters',
+    'X-Microsoft-Antispam': 'Editable || will not trigger filters',
+    'X-Forefront-Antispam-Report': 'Editable || will not trigger filters',
+    'X-MS-Exchange-CrossTenant-OriginalArrivalTime': 'Editable || will not trigger filters',
+    'X-MS-Exchange-CrossTenant-Network-Message-Id': 'Editable || will not trigger filters',
+    'X-MS-Exchange-CrossTenant-Id': 'Editable || will not trigger filters',
+    'X-MS-Exchange-CrossTenant-AuthSource': 'Editable || will not trigger filters',
+    'X-MS-Exchange-CrossTenant-AuthAs': 'Editable || will not trigger filters',
+    'X-MS-Exchange-CrossTenant-FromEntityHeader': 'Editable || will not trigger filters',
+    'X-MS-Exchange-Transport-CrossTenantHeadersStamped': 'Editable || will not trigger filters',
+    'X-MS-Exchange-Transport-EndToEndLatency': 'Editable || will not trigger filters',
+    'X-MS-Exchange-Processed-By-BccFoldering': 'Editable || will not trigger filters',
+    'X-Microsoft-Antispam-Mailbox-Delivery': 'Editable || will not trigger filters',
+    'X-Microsoft-Antispam-Message-Info': 'Editable || will not trigger filters'
+};
+
+sendEmail(senderEmail, senderPassword, recipientEmail, subject, body, headersEditable);
